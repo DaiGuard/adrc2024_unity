@@ -33,8 +33,8 @@ namespace UnitySensors.Sensor.LiDAR
         // protected ScanPattern scanPattern { get => _scanPattern; }
         public float minAngle { get => _minAngle; }
         public float maxAngle { get => _maxAngle; }
-        protected float minRange { get => _minRange; }
-        protected float maxRange { get => _maxRange; }
+        public float minRange { get => _minRange; }
+        public float maxRange { get => _maxRange; }
 
         protected float gaussianNoiseSigma { get => _gaussianNoiseSigma; }
         protected float maxIntensity { get => _maxIntensity; }

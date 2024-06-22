@@ -52,6 +52,8 @@ namespace UnitySensors.Visualization.LaserScan
             _mat.SetMatrix("LocalToWorldMatrix", sensor.transform.localToWorldMatrix);
             _mat.SetFloat("startAngle", sensor.minAngle);
             _mat.SetFloat("stepAngle", step);
+            _mat.SetFloat("minRange", sensor.minRange);
+            _mat.SetFloat("maxRange", sensor.maxRange);
             _rangesBuffer.SetData(sensor.laserScan.ranges);
         }
 

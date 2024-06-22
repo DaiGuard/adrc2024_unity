@@ -1454,7 +1454,7 @@ MonoBehaviour:
   _minAngle: -180
   _maxAngle: 180
   _minRange: 0.1
-  _maxRange: 100
+  _maxRange: 10
   _gaussianNoiseSigma: 0.02
   _maxIntensity: 255
 --- !u!114 &1872554773

@@ -32,6 +32,8 @@ float2 uv_MainTex;
 	StructuredBuffer<Range> RangesBuffer;
 	float startAngle;
 	float stepAngle;
+	float minRange;
+	float maxRange;
 	float4x4 LocalToWorldMatrix;
 #endif
 
@@ -60,11 +62,21 @@ float2 uv_MainTex;
 
 	void surf(Input IN, inout SurfaceOutputStandard o)
 	{
+		// float4 col = float4(r, g, b, 1.0);
 		float4 col = 1.0f;
 
 #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 		// col = pointsBuffer[unity_InstanceID].intensity;
+		float distance = RangesBuffer[unity_InstanceID].range;
+		float i = (distance - minRange) / maxRange;
+		float r = clamp((4.0 * i) - 2.0, 0.0, 1.0);
+		float g1 = clamp(( 4.0 * i)      , 0.0, 1.0);
+		float g2 = clamp((-4.0 * i) + 4.0, 0.0, 1.0);
+		float g = lerp(g1, g2, step(0.5, i));;
+		float b = clamp((-4.0 * i) + 2.0, 0.0, 1.0);
+
 		col = float4(1, 1, 1, 1);
+		// col = float4(r, g, b, 1);
 #else
 		col = float4(1, 1, 1, 1);
 #endif
