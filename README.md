@@ -2,6 +2,8 @@
 
 自動運転ミニカーバトル2024のシミュレーション用Unityプロジェクト
 
+<img src="https://github.com/DaiGuard/adrc2024_unity/assets/26181834/639e1a6b-eefe-48b2-b59a-4d0ea1129ba2" width="60%">
+
 --- 
 
 ## 自動運転ミニカーバトルとは
@@ -49,15 +51,49 @@
 
     2D Lidarセンサ値
 
-* /front_camera (sensor_msgs/CompressedImage)
+* /front_camera/compressed (sensor_msgs/CompressedImage)
 
     前面カメラ値
 
-* /rear_camera (sensor_msgs/CompressedImage)
+* /rear_camera/compressed (sensor_msgs/CompressedImage)
 
     後面カメラ値
 
 ---
+
+## シミュレータ起動方法
+
+### ROS-TCP-Endpointの起動
+
+Unity側の`ROS-TCP-Connector`と接続するための`ROS-TCP-Endpoint`を起動する
+
+[ROS-TCP-Endpoint (GitHub)](https://github.com/Unity-Technologies/ROS-TCP-Endpoint)
+
+```bash
+# ワークスペースの作成
+mkdir -p colcon_ws/src
+cd colcon_ws
+# リポジトリをクローンする
+git clone https://github.com/Unity-Technologies/ROS-TCP-Endpoint src/ROS-TCP-Endpoint
+# ビルドする
+colcon build --symlink-install
+# 起動する
+source install/local_setup.bash
+ros2 run ros_tcp_endpoint default_server_endpoint
+```
+
+### 圧縮画像の解凍
+
+Unity側から送信されるカメラ画像データは圧縮形式のため解凍して表示できるようにする
+
+```bash
+# Terminal 1
+ros2 run image_transport republish compressed raw \
+--ros-args -r /in/compressed:=/front_camera/compressed -r /out:=/front_camera/raw
+# Terminal 2
+ros2 run image_transport republish compressed raw \
+--ros-args -r /in/compressed:=/rear_camera/compressed -r /out:=/rear_camera/raw
+```
 
 ## トラブルシュート
 
