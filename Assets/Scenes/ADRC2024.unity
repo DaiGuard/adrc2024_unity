@@ -133,6 +133,8 @@ GameObject:
   m_Component:
   - component: {fileID: 549312415}
   - component: {fileID: 549312417}
+  - component: {fileID: 549312418}
+  - component: {fileID: 549312419}
   - component: {fileID: 549312416}
   m_Layer: 0
   m_Name: rear_camera
@@ -196,8 +198,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.025
-  far clip plane: 1000
-  field of view: 60
+  far clip plane: 50
+  field of view: 66
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -215,6 +217,41 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &549312418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549312414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1478023f72437a1488d09d4c2a1759c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _frequency: 10
+  _resolution: {x: 640, y: 480}
+  _fov: 60
+  _minRange: 0.05
+  _maxRange: 100
+--- !u!114 &549312419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549312414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d828eb68e3371438db55311f6be27f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _frequency: 60
+  _topicName: /rear_camera
+  _serializer:
+    _header:
+      _frame_id: 
+    quality: 75
 --- !u!1 &1109560755
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,7 +356,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1308904783}
   - component: {fileID: 1308904785}
+  - component: {fileID: 1308904786}
   - component: {fileID: 1308904784}
+  - component: {fileID: 1308904787}
   m_Layer: 0
   m_Name: front_camera
   m_TagString: Untagged
@@ -349,7 +388,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1308904782}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1308904785
 Camera:
   m_ObjectHideFlags: 0
@@ -382,8 +421,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.025
-  far clip plane: 1000
-  field of view: 60
+  far clip plane: 50
+  field of view: 90
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -401,6 +440,41 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1308904786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308904782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1478023f72437a1488d09d4c2a1759c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _frequency: 60
+  _resolution: {x: 640, y: 480}
+  _fov: 90
+  _minRange: 0.05
+  _maxRange: 100
+--- !u!114 &1308904787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308904782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d828eb68e3371438db55311f6be27f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _frequency: 10
+  _topicName: /front_camera
+  _serializer:
+    _header:
+      _frame_id: 
+    quality: 75
 --- !u!1 &1331341264
 GameObject:
   m_ObjectHideFlags: 0
