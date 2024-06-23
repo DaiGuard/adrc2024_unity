@@ -2021,7 +2021,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &491075492880694155
 Transform:
   m_ObjectHideFlags: 0
@@ -2115,6 +2115,7 @@ GameObject:
   - component: {fileID: 4975927778772117423}
   - component: {fileID: 8959574057416434447}
   - component: {fileID: 8959574057416434448}
+  - component: {fileID: 8959574057416434449}
   m_Layer: 0
   m_Name: robot
   m_TagString: Untagged
@@ -2795,7 +2796,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &3934448457860316970
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3226,7 +3227,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.056898583, z: 0.22439358}
+  m_Size: {x: 0.08, y: 0.056898583, z: 0.22439358}
   m_Center: {x: 0, y: 0.028449291, z: -0.0019967891}
 --- !u!171741748 &6270573915129017584
 ArticulationBody:
@@ -3497,7 +3498,7 @@ ArticulationBody:
     driveType: 0
   m_LinearDamping: 0.05
   m_AngularDamping: 0.05
-  m_JointFriction: 0.05
+  m_JointFriction: 100
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -3822,7 +3823,7 @@ ArticulationBody:
     driveType: 0
   m_LinearDamping: 0.05
   m_AngularDamping: 0.05
-  m_JointFriction: 0.05
+  m_JointFriction: 100
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -3941,7 +3942,7 @@ ArticulationBody:
     driveType: 0
   m_LinearDamping: 0.05
   m_AngularDamping: 0.05
-  m_JointFriction: 0.05
+  m_JointFriction: 100
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -4076,6 +4077,24 @@ MonoBehaviour:
   _frame_id: /robot
   _children:
   - {fileID: 6270573915129017586}
+--- !u!114 &8959574057416434449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 848502000868127649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 105e7b0ee6d72fd408c610464de936ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetSteer: 0
+  targetVelocity: 0
+  rightSteer: {fileID: 1331341266}
+  leftSteer: {fileID: 1579415415}
+  rightDriveWheel: {fileID: 8926426612852358128}
+  leftDriveWheel: {fileID: 7048853903160836292}
 --- !u!33 &9135715626571314948
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -4135,7 +4154,7 @@ ArticulationBody:
     driveType: 0
   m_LinearDamping: 0.05
   m_AngularDamping: 0.05
-  m_JointFriction: 0.05
+  m_JointFriction: 100
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
