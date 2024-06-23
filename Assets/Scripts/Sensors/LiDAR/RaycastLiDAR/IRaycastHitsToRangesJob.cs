@@ -39,14 +39,8 @@ namespace UnitySensors.Sensor.LiDAR
             Range range = new Range()
             {
                 range = distance,
-                // position = directions[index + indexOffset] * distance,
                 intensity = (distance != 0) ? maxIntensity * minRange_sqr / (distance * distance) : 0
             };
-            // PointXYZI point = new PointXYZI()
-            // {
-            //     position = directions[index + indexOffset] * distance,
-            //     intensity = (distance != 0) ? maxIntensity * minRange_sqr / (distance * distance) : 0
-            // };
             ranges[index] = range;
         }
     }

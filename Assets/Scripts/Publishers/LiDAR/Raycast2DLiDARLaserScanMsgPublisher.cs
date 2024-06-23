@@ -6,8 +6,8 @@ using UnitySensors.Data.LaserScan;
 
 namespace UnitySensors.ROS.Publisher.LiDAR
 {
-    [RequireComponent(typeof(RaycastLiDARSensor))]
-    public class Raycast2DLiDARLaserScanMsgPublisher : LaserScanMsgPublisher<Raycast2DLiDARSensor, Range>
+    [RequireComponent(typeof(Raycast2DLiDARSensor))]
+    public class Raycast2DLiDARLaserScanMsgPublisher : LaserScanMsgPublisher<Raycast2DLiDARSensor>
     {
     }
 }

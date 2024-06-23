@@ -7,9 +7,8 @@ using UnitySensors.ROS.Serializer.LaserScan;
 
 namespace UnitySensors.ROS.Publisher.LaserScan
 {
-    public class LaserScanMsgPublisher<T, TT> : RosMsgPublisher<T, LaserScanMsgSerializer<T, TT>, LaserScanMsg>
+    public class LaserScanMsgPublisher<T> : RosMsgPublisher<T, LaserScanMsgSerializer<T>, LaserScanMsg>
         where T : UnitySensor, ILaserScanInterface
-        where TT : struct, IRangeInterface
     {
         private void OnDestroy()
         {

@@ -11,15 +11,14 @@ using UnitySensors.Sensor;
 namespace UnitySensors.ROS.Serializer.LaserScan
 {
     [System.Serializable]
-    public class LaserScanMsgSerializer<T, TT> : RosMsgSerializer<T, LaserScanMsg>
+    public class LaserScanMsgSerializer<T> : RosMsgSerializer<T, LaserScanMsg>
         where T : UnitySensor, ILaserScanInterface
-        where TT : struct, IRangeInterface
     {
         [SerializeField]
         private HeaderSerializer _header;
 
         private JobHandle _jobHandle;
-        private IRangesToLaserScanMsgJob<TT> _rangesToLaserScanMsgJob;
+        // private IRangesToLaserScanMsgJob _rangesToLaserScanMsgJob;
         private NativeArray<byte> _data;
 
         public override void Init(T sensor)
@@ -27,38 +26,37 @@ namespace UnitySensors.ROS.Serializer.LaserScan
             base.Init(sensor);
             _header.Init(sensor);
 
-            // _msg.height = 1;
-            // _msg.width = (uint)sensor.pointsNum;
-            // _msg.fields = new PointFieldMsg[3];
-            // for (int i = 0; i < 3; i++)
-            // {
-            //     _msg.fields[i] = new PointFieldMsg();
-            //     _msg.fields[i].name = ((char)('x' + i)).ToString();
-            //     _msg.fields[i].offset = (uint)(4 * i);
-            //     _msg.fields[i].datatype = 7;
-            //     _msg.fields[i].count = 1;
-            // }
-            // _msg.is_bigendian = false;
-            // _msg.point_step = 12;
-            // _msg.row_step = (uint)sensor.pointsNum * 12;
-            // _msg.data = new byte[(uint)sensor.pointsNum * 12];
-            // _msg.is_dense = true;
+            _msg.angle_min = sensor.minAngle * Mathf.Deg2Rad;
+            _msg.angle_max = sensor.maxAngle * Mathf.Deg2Rad;
+            _msg.angle_increment = (_msg.angle_max - _msg.angle_min) / sensor.pointsNum;
+            _msg.time_increment = sensor.dt / sensor.pointsNum;
+            _msg.scan_time = sensor.dt;
+            _msg.range_min = sensor.minRange;
+            _msg.range_max = sensor.maxRange;
+            _msg.ranges = new float[sensor.pointsNum];
+            _msg.intensities = new float[sensor.pointsNum];
 
-            // _data = new NativeArray<byte>(sensor.pointsNum * 12, Allocator.Persistent);
+            // _data = new NativeArray<byte>(sensor.pointsNum * 4, Allocator.Persistent);
 
-            // _pointsToPointCloud2MsgJob = new IPointsToPointCloud2MsgJob<TT>()
+            // _rangesToLaserScanMsgJob = new IRangesToLaserScanMsgJob()
             // {
-            //     points = sensor.pointCloud.points,
-            //     data = _data
+            //     ranges = sensor.laserScan.ranges,
+            //     data = _data,
             // };
         }
 
         public override LaserScanMsg Serialize()
         {
             _msg.header = _header.Serialize();
-            // _jobHandle = _pointsToPointCloud2MsgJob.Schedule(sensor.pointsNum, 1);
+            // _jobHandle = _rangesToLaserScanMsgJob.Schedule(sensor.pointsNum, 1);
             // _jobHandle.Complete();
-            // _pointsToPointCloud2MsgJob.data.CopyTo(_msg.data);
+
+            for(int i=0; i<sensor.pointsNum; i++)
+            {
+                _msg.ranges[i] = sensor.laserScan.ranges[i].range;
+                _msg.intensities[i] = sensor.laserScan.ranges[i].intensity;
+            }
+            
             return _msg;
         }
 

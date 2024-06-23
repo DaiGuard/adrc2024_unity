@@ -11,8 +11,6 @@ namespace UnitySensors.Sensor.LiDAR
 {
     public abstract class LiDAR2DSensor : UnitySensor, ILaserScanInterface
     {
-        // [SerializeField]
-        // private ScanPattern _scanPattern;
         [SerializeField]
         private int _pointsNumPerScan = 1;
         [SerializeField]
@@ -30,7 +28,6 @@ namespace UnitySensors.Sensor.LiDAR
 
         private LaserScan _laserScan;
 
-        // protected ScanPattern scanPattern { get => _scanPattern; }
         public float minAngle { get => _minAngle; }
         public float maxAngle { get => _maxAngle; }
         public float minRange { get => _minRange; }
