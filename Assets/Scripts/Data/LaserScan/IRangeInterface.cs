@@ -7,3 +7,4 @@ namespace UnitySensors.Data.LaserScan
         public void CopyTo(NativeArray<byte> dst);
     }
 }
+
