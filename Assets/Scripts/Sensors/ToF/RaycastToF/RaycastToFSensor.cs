@@ -47,8 +47,6 @@ namespace UnitySensors.Sensor.ToF
                 float noise = gaussianNoiseSigma * normrand;
 
                 this.range = hit.distance + noise;
-
-                Debug.Log(this.range);
             }
 
             if (onSensorUpdated != null)

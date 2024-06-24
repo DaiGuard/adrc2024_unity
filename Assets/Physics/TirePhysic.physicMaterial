@@ -7,8 +7,8 @@ PhysicMaterial:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TirePhysic
-  dynamicFriction: 0.6
-  staticFriction: 0.8
-  bounciness: 0
+  dynamicFriction: 60
+  staticFriction: 80
+  bounciness: 0.1
   frictionCombine: 0
   bounceCombine: 0
