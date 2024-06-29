@@ -28,6 +28,7 @@ public class RobotController : MonoBehaviour
 
     [SerializeField]
     private string cmd_vel_name = "/cmd_vel";
+    [SerializeField]
     private string current_vel_name = "/current_vel";
 
     private ROSConnection ros;
