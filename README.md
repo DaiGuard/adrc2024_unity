@@ -95,6 +95,10 @@ ros2 run image_transport republish compressed raw \
 --ros-args -r /in/compressed:=/rear_camera/compressed -r /out:=/rear_camera/raw
 ```
 
+### レビュー
+
+<img src="https://github.com/DaiGuard/adrc2024_unity/assets/26181834/d97a9c24-836e-4bd9-aedf-8d638435aff1" width="60%" />
+
 ## トラブルシュート
 
 ### 'HeaderMsg' does not contain a definition for 'seq' 
