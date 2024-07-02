@@ -34,6 +34,10 @@ public class RobotController : MonoBehaviour
     private ROSConnection ros;
     private TwistMsg cmd_vel;
 
+    private Vector3 prePosition;
+    private Quaternion preRotation;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -63,6 +67,16 @@ public class RobotController : MonoBehaviour
             targetVelocity = 0.0f;
         }
 
+        var position = this.transform.position;
+        var rotation = this.transform.rotation;
+
+        var dt = Time.deltaTime;
+        var trans_vel = (position - prePosition).magnitude / dt;
+        var angle_vel = (rotation.eulerAngles.y - preRotation.eulerAngles.y) / dt * Mathf.Deg2Rad;
+
+        prePosition = position;
+        preRotation = rotation;
+        
         rightSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
         leftSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
 
