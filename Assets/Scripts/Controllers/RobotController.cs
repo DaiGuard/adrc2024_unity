@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Geometry;
+using UnityEngine.UI;
+using UnityEngine.Splines;
 
 public class RobotController : MonoBehaviour
 {
@@ -34,13 +36,22 @@ public class RobotController : MonoBehaviour
     private ROSConnection ros;
     private TwistMsg cmd_vel;
 
-    private Vector3 prePosition;
-    private Quaternion preRotation;
+    [SerializeField]
+    private GameObject targetObject;
 
+    private bool isAutoDrive;
+
+    private Vector3 startPos;
+    private Quaternion startRot;
+    private GameObject robotObject;
 
     // Start is called before the first frame update
     void Start()
     {
+        robotObject = this.gameObject;
+        startPos = robotObject.transform.position;
+        startRot = robotObject.transform.rotation;
+
         ros = ROSConnection.GetOrCreateInstance();
         ros.RegisterPublisher<TwistMsg>(current_vel_name);
         ros.Subscribe<TwistMsg>(cmd_vel_name, CallbackCmdVel);
@@ -50,32 +61,41 @@ public class RobotController : MonoBehaviour
     void Update()
     {
         var gamepad = Gamepad.current;
-        if (gamepad != null) {
-            if(gamepad.triangleButton.ReadValue() < 1.0)
-            {
-                targetSteer = gamepad.rightStick.x.ReadValue() * steerRatio;
-                targetVelocity = gamepad.leftStick.y.ReadValue() * velocityRatio;
+        if(isAutoDrive)
+        {
+            var trans = targetObject.transform.position - robotObject.transform.position;
+            trans = robotObject.transform.worldToLocalMatrix * trans;
+
+            var diff_d = trans.z;
+            var diff_a = 0.0f;
+            if(trans.magnitude > 0.1) {
+                diff_a = Mathf.Atan2(trans.x, trans.z);
             }
-            else 
-            {
-                targetSteer = (float)cmd_vel.angular.z * steerRatio;
-                targetVelocity = (float)cmd_vel.linear.x * velocityRatio;
-            }
+
+            // targetVelocity += diff_d * 50.0f;
+            targetVelocity = 3100;
+            targetSteer = diff_a * Mathf.Rad2Deg;
+
+            // Debug.Log(diff_d + "," + diff_a);
         }
         else {
-            targetSteer = 0.0f;
-            targetVelocity = 0.0f;
+            if (gamepad != null) {
+                if(gamepad.triangleButton.ReadValue() < 1.0)
+                {
+                    targetSteer = gamepad.rightStick.x.ReadValue() * steerRatio;
+                    targetVelocity = gamepad.leftStick.y.ReadValue() * velocityRatio;
+                }
+                else 
+                {
+                    targetSteer = (float)cmd_vel.angular.z * steerRatio;
+                    targetVelocity = (float)cmd_vel.linear.x * velocityRatio;
+                }
+            }
+            else {
+                targetSteer = 0.0f;
+                targetVelocity = 0.0f;
+            }
         }
-
-        var position = this.transform.position;
-        var rotation = this.transform.rotation;
-
-        var dt = Time.deltaTime;
-        var trans_vel = (position - prePosition).magnitude / dt;
-        var angle_vel = (rotation.eulerAngles.y - preRotation.eulerAngles.y) / dt * Mathf.Deg2Rad;
-
-        prePosition = position;
-        preRotation = rotation;
         
         rightSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
         leftSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
@@ -93,5 +113,23 @@ public class RobotController : MonoBehaviour
     void CallbackCmdVel(TwistMsg msg) 
     {
         cmd_vel = msg;
+    }
+
+    public void AutoDriveChanged(Toggle sw)
+    {
+        var animate = targetObject.GetComponent<SplineAnimate>();
+        if(sw.isOn)
+        {
+            var ab = robotObject.GetComponent<ArticulationBody>();
+            ab.TeleportRoot(startPos, startRot);
+
+            isAutoDrive = true;
+            animate.Restart(false);
+            animate.Play();
+        }
+        else {
+            isAutoDrive = false;
+            animate.Pause();
+        }
     }
 }
