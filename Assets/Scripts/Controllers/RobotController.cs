@@ -6,6 +6,7 @@ using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Geometry;
 using UnityEngine.UI;
 using UnityEngine.Splines;
+using System.Diagnostics;
 
 public class RobotController : MonoBehaviour
 {
@@ -39,11 +40,16 @@ public class RobotController : MonoBehaviour
     [SerializeField]
     private GameObject targetObject;
 
+    [SerializeField]
+    private GameObject courseObject;
+
     private bool isAutoDrive;
 
     private Vector3 startPos;
     private Quaternion startRot;
     private GameObject robotObject;
+
+    bool rightOrLeft = true;
 
     // Start is called before the first frame update
     void Start()
@@ -63,20 +69,36 @@ public class RobotController : MonoBehaviour
         var gamepad = Gamepad.current;
         if(isAutoDrive)
         {
+            var animate = targetObject.GetComponent<SplineAnimate>();
+            if(!animate.IsPlaying)
+            {
+                rightOrLeft = !rightOrLeft;
+
+                var courseSwitch = courseObject.GetComponent<CourseSwitcher>();
+                courseSwitch.SwitchRightLeft(rightOrLeft);
+
+                var traceSwitch = targetObject.GetComponent<TraceSwitcher>();
+                traceSwitch.RightLeftTraceChange(rightOrLeft);
+
+                var ab = robotObject.GetComponent<ArticulationBody>();
+                ab.velocity = Vector3.zero;
+                ab.angularVelocity = Vector3.zero;
+                ab.TeleportRoot(startPos, startRot);
+                
+                animate.Restart(false);
+                animate.Play();
+            }
+
             var trans = targetObject.transform.position - robotObject.transform.position;
             trans = robotObject.transform.worldToLocalMatrix * trans;
 
-            var diff_d = trans.z;
             var diff_a = 0.0f;
-            if(trans.magnitude > 0.1) {
+            if(trans.magnitude > 0.01) {
                 diff_a = Mathf.Atan2(trans.x, trans.z);
             }
 
-            // targetVelocity += diff_d * 50.0f;
-            targetVelocity = 3100;
+            targetVelocity = 2000;
             targetSteer = diff_a * Mathf.Rad2Deg;
-
-            // Debug.Log(diff_d + "," + diff_a);
         }
         else {
             if (gamepad != null) {
@@ -121,11 +143,13 @@ public class RobotController : MonoBehaviour
         if(sw.isOn)
         {
             var ab = robotObject.GetComponent<ArticulationBody>();
+            ab.velocity = Vector3.zero;
+            ab.angularVelocity = Vector3.zero;
             ab.TeleportRoot(startPos, startRot);
-
-            isAutoDrive = true;
+            
             animate.Restart(false);
             animate.Play();
+            isAutoDrive = true;
         }
         else {
             isAutoDrive = false;
