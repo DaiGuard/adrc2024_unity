@@ -1,20 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 using UnityEngine.UI;
+
 
 public class CourseSwitcher : MonoBehaviour
 {
-    [SerializeField]
-    List<GameObject> rightObjects;
+    [System.Serializable]
+    struct CourseSetting
+    {
+        [SerializeField]
+        public SplineContainer traceline;
+        [SerializeField]
+        public List<GameObject> enableObjects;
+    }
 
     [SerializeField]
-    List<GameObject> leftObjects;
+    private SplineContainer enableTraceLine;
+
+    [SerializeField]
+    private int enableIdx = 0;
+
+    [SerializeField]
+    private List<CourseSetting> courseSettings;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        EnableCourseSetting(0);
     }
 
     // Update is called once per frame
@@ -23,27 +37,36 @@ public class CourseSwitcher : MonoBehaviour
         
     }
 
-    public void SwitchRightLeft(bool flag)
+    public int CountCourseSetting()
     {
-        foreach(var obj in leftObjects)
-        {
-            obj.SetActive(!flag);
-        }
-
-        foreach(var obj in rightObjects)
-        {
-            obj.SetActive(flag);
-        }
+        return courseSettings.Count;
     }
 
-    public void RightLeftChanged(Toggle sw)
+    public SplineContainer EnableCourseSetting(int id)
     {
-        if(sw.isOn)
+        enableIdx = id;
+
+        for(int i=0; i<courseSettings.Count; i++)
         {
-            SwitchRightLeft(true);
+            var setting = courseSettings[i];
+
+            if(i == enableIdx)
+            {
+                enableTraceLine = setting.traceline;
+                foreach(var obj in setting.enableObjects)
+                {
+                    obj.SetActive(true);
+                }
+            }
+            else
+            {
+                foreach(var obj in setting.enableObjects)
+                {
+                    obj.SetActive(false);
+                }
+            }
         }
-        else {
-            SwitchRightLeft(false);
-        }
+
+        return enableTraceLine;
     }
 }

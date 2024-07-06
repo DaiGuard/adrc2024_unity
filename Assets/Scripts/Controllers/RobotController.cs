@@ -40,16 +40,11 @@ public class RobotController : MonoBehaviour
     [SerializeField]
     private GameObject targetObject;
 
-    [SerializeField]
-    private GameObject courseObject;
-
-    private bool isAutoDrive;
+    private bool IsAutoDrive = false;
 
     private Vector3 startPos;
     private Quaternion startRot;
     private GameObject robotObject;
-
-    bool rightOrLeft = true;
 
     // Start is called before the first frame update
     void Start()
@@ -67,38 +62,31 @@ public class RobotController : MonoBehaviour
     void Update()
     {
         var gamepad = Gamepad.current;
-        if(isAutoDrive)
+        if(IsAutoDrive)
         {
-            var animate = targetObject.GetComponent<SplineAnimate>();
-            if(!animate.IsPlaying)
-            {
-                rightOrLeft = !rightOrLeft;
-
-                var courseSwitch = courseObject.GetComponent<CourseSwitcher>();
-                courseSwitch.SwitchRightLeft(rightOrLeft);
-
-                var traceSwitch = targetObject.GetComponent<TraceSwitcher>();
-                traceSwitch.RightLeftTraceChange(rightOrLeft);
-
-                var ab = robotObject.GetComponent<ArticulationBody>();
-                ab.velocity = Vector3.zero;
-                ab.angularVelocity = Vector3.zero;
-                ab.TeleportRoot(startPos, startRot);
-                
-                animate.Restart(false);
-                animate.Play();
-            }
-
             var trans = targetObject.transform.position - robotObject.transform.position;
             trans = robotObject.transform.worldToLocalMatrix * trans;
 
             var diff_a = 0.0f;
-            if(trans.magnitude > 0.01) {
-                diff_a = Mathf.Atan2(trans.x, trans.z);
-            }
+            if(trans.magnitude > 1.0)
+            {
+                IsAutoDrive = false;
 
-            targetVelocity = 2000;
-            targetSteer = diff_a * Mathf.Rad2Deg;
+                targetVelocity = 0.0f;
+                targetSteer = 0.0f;
+            }
+            else if(trans.magnitude > 0.01) {
+                diff_a = Mathf.Atan2(trans.x, trans.z);
+
+                targetVelocity = 2000;
+                targetSteer = diff_a * Mathf.Rad2Deg;
+
+            }
+            else
+            {
+                targetVelocity = 2000;
+                targetSteer = 0.0f;
+            }
         }
         else {
             if (gamepad != null) {
@@ -137,23 +125,20 @@ public class RobotController : MonoBehaviour
         cmd_vel = msg;
     }
 
-    public void AutoDriveChanged(Toggle sw)
+    public bool GetAutoDrive()
     {
-        var animate = targetObject.GetComponent<SplineAnimate>();
-        if(sw.isOn)
-        {
-            var ab = robotObject.GetComponent<ArticulationBody>();
-            ab.velocity = Vector3.zero;
-            ab.angularVelocity = Vector3.zero;
-            ab.TeleportRoot(startPos, startRot);
-            
-            animate.Restart(false);
-            animate.Play();
-            isAutoDrive = true;
-        }
-        else {
-            isAutoDrive = false;
-            animate.Pause();
-        }
+        return IsAutoDrive;
+    }
+    public void SetAutoDrive(bool enable)
+    {
+        IsAutoDrive = enable;
+    }
+
+    public void ResetPos()
+    {
+        var ab = robotObject.GetComponent<ArticulationBody>();
+        ab.velocity = Vector3.zero;
+        ab.angularVelocity = Vector3.zero;
+        ab.TeleportRoot(startPos, startRot);
     }
 }
