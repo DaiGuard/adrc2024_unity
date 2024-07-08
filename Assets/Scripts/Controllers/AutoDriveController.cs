@@ -65,9 +65,9 @@ public class AutoDriveController : MonoBehaviour
                 RandomCourse(tmpCourse);
 
                 traceAnimate.Container = tmpCourse;
-
-                robotControl.SetAutoDrive(true);
+                
                 traceAnimate.Play();
+                robotControl.SetAutoDrive(true);
             }
         }
     }
@@ -92,18 +92,6 @@ public class AutoDriveController : MonoBehaviour
     {
         if (sw.isOn)
         {
-            // if(traceAnimate.IsPlaying)
-            // {
-            //     traceAnimate.Pause();
-            //     robotControl.SetAutoDrive(false);
-            // }
-
-            // robotControl.ResetPos();
-            // traceAnimate.Restart(false);
-
-            // robotControl.SetAutoDrive(true);
-            // traceAnimate.Play();
-
             this.enableAutoDrive = true;
         }
         else {

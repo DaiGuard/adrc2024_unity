@@ -6,7 +6,9 @@ using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Geometry;
 using UnityEngine.UI;
 using UnityEngine.Splines;
-using System.Diagnostics;
+using RosMessageTypes.Std;
+using RosMessageTypes.BuiltinInterfaces;
+
 
 public class RobotController : MonoBehaviour
 {
@@ -46,6 +48,17 @@ public class RobotController : MonoBehaviour
     private Quaternion startRot;
     private GameObject robotObject;
 
+    [SerializeField]
+    private float emagencyStopDistance;
+
+    [SerializeField]
+    private float nearDistance;
+
+    [SerializeField]
+    private float startDistance;
+
+    private bool startFlag;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -54,7 +67,7 @@ public class RobotController : MonoBehaviour
         startRot = robotObject.transform.rotation;
 
         ros = ROSConnection.GetOrCreateInstance();
-        ros.RegisterPublisher<TwistMsg>(current_vel_name);
+        ros.RegisterPublisher<TwistStampedMsg>(current_vel_name);
         ros.Subscribe<TwistMsg>(cmd_vel_name, CallbackCmdVel);
     }
 
@@ -68,24 +81,37 @@ public class RobotController : MonoBehaviour
             trans = robotObject.transform.worldToLocalMatrix * trans;
 
             var diff_a = 0.0f;
-            if(trans.magnitude > 1.0)
+            if(startFlag)
             {
-                IsAutoDrive = false;
-
                 targetVelocity = 0.0f;
                 targetSteer = 0.0f;
-            }
-            else if(trans.magnitude > 0.01) {
-                diff_a = Mathf.Atan2(trans.x, trans.z);
 
-                targetVelocity = 2000;
-                targetSteer = diff_a * Mathf.Rad2Deg;
-
+                if(trans.magnitude > startDistance)
+                {
+                    startFlag = false;
+                }
             }
-            else
+            else 
             {
-                targetVelocity = 2000;
-                targetSteer = 0.0f;
+                if(trans.magnitude > emagencyStopDistance)
+                {
+                    IsAutoDrive = false;
+
+                    targetVelocity = 0.0f;
+                    targetSteer = 0.0f;
+                }
+                else if(trans.magnitude > nearDistance) {
+                    diff_a = Mathf.Atan2(trans.x, trans.z);
+
+                    targetVelocity = 2000;
+                    targetSteer = diff_a * Mathf.Rad2Deg;
+
+                }
+                else
+                {
+                    targetVelocity = 2000;
+                    targetSteer = 0.0f;
+                }
             }
         }
         else {
@@ -113,9 +139,12 @@ public class RobotController : MonoBehaviour
         rightDriveWheel.SetDriveTargetVelocity(ArticulationDriveAxis.X, targetVelocity);
         leftDriveWheel.SetDriveTargetVelocity(ArticulationDriveAxis.X, targetVelocity);
 
-        var msg = new TwistMsg();
-        msg.linear.x = targetVelocity / velocityRatio;
-        msg.angular.z = targetSteer / steerRatio;
+        var msg = new TwistStampedMsg();
+        var time = Time.time;
+        msg.header.stamp.sec = (int)System.Math.Truncate(time);
+        msg.header.stamp.nanosec = (uint)((time - msg.header.stamp.sec) * 1e+9);
+        msg.twist.linear.x = targetVelocity / velocityRatio;
+        msg.twist.angular.z = targetSteer / steerRatio;
 
         ros.Publish(current_vel_name, msg);
     }
@@ -131,6 +160,11 @@ public class RobotController : MonoBehaviour
     }
     public void SetAutoDrive(bool enable)
     {
+        if(!IsAutoDrive && enable)
+        {
+            startFlag = true;
+        }
+
         IsAutoDrive = enable;
     }
 
