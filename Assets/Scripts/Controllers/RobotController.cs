@@ -57,6 +57,9 @@ public class RobotController : MonoBehaviour
     [SerializeField]
     private float startDistance;
 
+    [SerializeField]
+    private float maxSteerDiff;
+
     private bool startFlag;
 
     // Start is called before the first frame update
@@ -104,7 +107,16 @@ public class RobotController : MonoBehaviour
                     diff_a = Mathf.Atan2(trans.x, trans.z);
 
                     targetVelocity = 2000;
-                    targetSteer = diff_a * Mathf.Rad2Deg;
+
+
+                    float s = diff_a * Mathf.Rad2Deg;
+                    if( s - targetSteer > maxSteerDiff) {
+                        targetSteer += maxSteerDiff;
+                    }
+                    else if( targetSteer - s > maxSteerDiff) {
+                        targetSteer -= maxSteerDiff;
+                    }
+                    targetSteer = s;
 
                 }
                 else
