@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Geometry;
+using UnityEngine.UI;
+using UnityEngine.Splines;
+using RosMessageTypes.Std;
+using RosMessageTypes.BuiltinInterfaces;
+
 
 public class RobotController : MonoBehaviour
 {
@@ -34,11 +39,38 @@ public class RobotController : MonoBehaviour
     private ROSConnection ros;
     private TwistMsg cmd_vel;
 
+    [SerializeField]
+    private GameObject targetObject;
+
+    private bool IsAutoDrive = false;
+
+    private Vector3 startPos;
+    private Quaternion startRot;
+    private GameObject robotObject;
+
+    [SerializeField]
+    private float emagencyStopDistance;
+
+    [SerializeField]
+    private float nearDistance;
+
+    [SerializeField]
+    private float startDistance;
+
+    [SerializeField]
+    private float maxSteerDiff;
+
+    private bool startFlag;
+
     // Start is called before the first frame update
     void Start()
     {
+        robotObject = this.gameObject;
+        startPos = robotObject.transform.position;
+        startRot = robotObject.transform.rotation;
+
         ros = ROSConnection.GetOrCreateInstance();
-        ros.RegisterPublisher<TwistMsg>(current_vel_name);
+        ros.RegisterPublisher<TwistStampedMsg>(current_vel_name);
         ros.Subscribe<TwistMsg>(cmd_vel_name, CallbackCmdVel);
     }
 
@@ -46,32 +78,85 @@ public class RobotController : MonoBehaviour
     void Update()
     {
         var gamepad = Gamepad.current;
-        if (gamepad != null) {
-            if(gamepad.triangleButton.ReadValue() < 1.0)
+        if(IsAutoDrive)
+        {
+            var trans = targetObject.transform.position - robotObject.transform.position;
+            trans = robotObject.transform.worldToLocalMatrix * trans;
+
+            var diff_a = 0.0f;
+            if(startFlag)
             {
-                targetSteer = gamepad.rightStick.x.ReadValue() * steerRatio;
-                targetVelocity = gamepad.leftStick.y.ReadValue() * velocityRatio;
+                targetVelocity = 0.0f;
+                targetSteer = 0.0f;
+
+                if(trans.magnitude > startDistance)
+                {
+                    startFlag = false;
+                }
             }
             else 
             {
-                targetSteer = (float)cmd_vel.angular.z * steerRatio;
-                targetVelocity = (float)cmd_vel.linear.x * velocityRatio;
+                if(trans.magnitude > emagencyStopDistance)
+                {
+                    IsAutoDrive = false;
+
+                    targetVelocity = 0.0f;
+                    targetSteer = 0.0f;
+                }
+                else if(trans.magnitude > nearDistance) {
+                    diff_a = Mathf.Atan2(trans.x, trans.z);
+
+                    targetVelocity = 2000;
+
+
+                    float s = diff_a * Mathf.Rad2Deg;
+                    if( s - targetSteer > maxSteerDiff) {
+                        targetSteer += maxSteerDiff;
+                    }
+                    else if( targetSteer - s > maxSteerDiff) {
+                        targetSteer -= maxSteerDiff;
+                    }
+                    targetSteer = s;
+
+                }
+                else
+                {
+                    targetVelocity = 2000;
+                    targetSteer = 0.0f;
+                }
             }
         }
         else {
-            targetSteer = 0.0f;
-            targetVelocity = 0.0f;
+            if (gamepad != null) {
+                if(gamepad.triangleButton.ReadValue() < 1.0)
+                {
+                    targetSteer = gamepad.rightStick.x.ReadValue() * steerRatio;
+                    targetVelocity = gamepad.leftStick.y.ReadValue() * velocityRatio;
+                }
+                else 
+                {
+                    targetSteer = (float)cmd_vel.angular.z * steerRatio;
+                    targetVelocity = (float)cmd_vel.linear.x * velocityRatio;
+                }
+            }
+            else {
+                targetSteer = 0.0f;
+                targetVelocity = 0.0f;
+            }
         }
-
+        
         rightSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
         leftSteer.SetDriveTarget(ArticulationDriveAxis.X, targetSteer);
 
         rightDriveWheel.SetDriveTargetVelocity(ArticulationDriveAxis.X, targetVelocity);
         leftDriveWheel.SetDriveTargetVelocity(ArticulationDriveAxis.X, targetVelocity);
 
-        var msg = new TwistMsg();
-        msg.linear.x = targetVelocity / velocityRatio;
-        msg.angular.z = targetSteer / steerRatio;
+        var msg = new TwistStampedMsg();
+        var time = Time.time;
+        msg.header.stamp.sec = (int)System.Math.Truncate(time);
+        msg.header.stamp.nanosec = (uint)((time - msg.header.stamp.sec) * 1e+9);
+        msg.twist.linear.x = targetVelocity / velocityRatio;
+        msg.twist.angular.z = targetSteer / steerRatio;
 
         ros.Publish(current_vel_name, msg);
     }
@@ -79,5 +164,27 @@ public class RobotController : MonoBehaviour
     void CallbackCmdVel(TwistMsg msg) 
     {
         cmd_vel = msg;
+    }
+
+    public bool GetAutoDrive()
+    {
+        return IsAutoDrive;
+    }
+    public void SetAutoDrive(bool enable)
+    {
+        if(!IsAutoDrive && enable)
+        {
+            startFlag = true;
+        }
+
+        IsAutoDrive = enable;
+    }
+
+    public void ResetPos()
+    {
+        var ab = robotObject.GetComponent<ArticulationBody>();
+        ab.velocity = Vector3.zero;
+        ab.angularVelocity = Vector3.zero;
+        ab.TeleportRoot(startPos, startRot);
     }
 }
